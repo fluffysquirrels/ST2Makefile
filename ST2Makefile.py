@@ -39,6 +39,10 @@ mcu_cflags[re.compile('STM32(F|L)2')] = '-mthumb -mcpu=cortex-m3'
 mcu_cflags[re.compile('STM32(F|L)3')] = '-mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp'
 mcu_cflags[re.compile('STM32(F|L)4')] = '-mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp'
 
+# Set use_project_ld_script = True to use the LD script the TrueSTUDIO project specifies
+# Set use_project_ld_script = False to use the template .ld script from ST2Makefile.
+use_project_ld_script = True
+
 if len(sys.argv) != 2:
     sys.stderr.write("\r\nTrueSTUDIO STM32 project to Makefile V1.0\r\n")
     sys.stderr.write("-==================================-\r\n")
@@ -169,9 +173,11 @@ for node in nodes:
 memory = ''
 estack = ''
 node = root.find('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.ld"]/option[@superClass="com.atollic.truestudio.ld.general.scriptfile"]')
+project_ld_path = ''
 try:
     value = node.attrib.get('value')
-    ld_script = proj_folder + os.path.sep + re.sub(r'^..(\\|/)', '', value.replace('\\', os.path.sep)) # up one level
+    project_ld_path = re.sub(r'^..(\\|/)', '', value.replace('\\', os.path.sep))
+    ld_script = proj_folder + os.path.sep + project_ld_path
     fd = open(ld_script, 'r')
     ls = fd.read()
     fd.close()
@@ -190,6 +196,11 @@ if ((memory =='') | (estack == '')):
     sys.stderr.write("Unable to locate memory layout from link script\r\n")
     sys.exit(T2M_ERR_NEED_UPDATE)
 
+if use_project_ld_script:
+    ld_path = project_ld_path
+else:
+    ld_path = 'arm-gcc-link.ld'
+
 mf = mft.substitute( \
     TARGET = proj_name, \
     MCU = mcu, \
@@ -198,7 +209,8 @@ mf = mft.substitute( \
     AS_DEFS = as_defs, \
     AS_INCLUDES = as_includes, \
     C_DEFS = c_defs, \
-    C_INCLUDES = c_includes)
+    C_INCLUDES = c_includes, \
+    LD_PATH = ld_path)
 try:
     fd = open(proj_folder + os.path.sep + 'Makefile', 'wb')
     fd.write(mf)
@@ -208,16 +220,17 @@ except:
     sys.exit(T2M_ERR_IO)
 sys.stdout.write("File created: %s\r\n" % (proj_folder + os.path.sep + 'Makefile'))
 
-ld = ldt.substitute( \
-    MEMORY = memory, \
-    ESTACK = estack)
-try:
-    fd = open(proj_folder + os.path.sep + 'arm-gcc-link.ld', 'wb')
-    fd.write(ld)
-    fd.close()
-except:
-    sys.stderr.write("Write link script failed\r\n")
-    sys.exit(T2M_ERR_IO)
-sys.stdout.write("File created: %s\r\n" % (proj_folder + os.path.sep + 'arm-gcc-link.ld'))
+if not use_project_ld_script:
+    ld = ldt.substitute( \
+        MEMORY = memory, \
+        ESTACK = estack)
+    try:
+        fd = open(proj_folder + os.path.sep + 'arm-gcc-link.ld', 'wb')
+        fd.write(ld)
+        fd.close()
+    except:
+        sys.stderr.write("Write link script failed\r\n")
+        sys.exit(T2M_ERR_IO)
+    sys.stdout.write("File created: %s\r\n" % (proj_folder + os.path.sep + 'arm-gcc-link.ld'))
 
 sys.exit(T2M_ERR_SUCCESS)
