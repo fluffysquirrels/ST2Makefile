@@ -33,6 +33,7 @@ T2M_ERR_NEED_UPDATE         = -6
 # STM32 part to compiler flag mapping
 mcu_cflags = {}
 mcu_cflags[re.compile('STM32(F|L)0')] = '-mthumb -mcpu=cortex-m0'
+mcu_cflags[re.compile('.*Cortex-M0')] = '-mthumb -mcpu=cortex-m0'
 mcu_cflags[re.compile('STM32(F|L)1')] = '-mthumb -mcpu=cortex-m3'
 mcu_cflags[re.compile('STM32(F|L)2')] = '-mthumb -mcpu=cortex-m3'
 mcu_cflags[re.compile('STM32(F|L)3')] = '-mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp'
