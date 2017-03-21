@@ -112,7 +112,7 @@ except Exception, e:
     sys.exit(T2M_ERR_PROJECT_FILE)
 # MCU
 mcu = ''
-node = root.find('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.as"]/option[@name="Microcontroller"]')
+node = root.find('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.as"]/option[@name="Microcontroller"]')
 try:
     value = node.attrib.get('value')
 except Exception, e:
@@ -126,7 +126,7 @@ if (mcu == ''):
     sys.stderr.exit(T2M_ERR_NEED_UPDATE)
 # AS include
 as_includes = 'AS_INCLUDES ='
-nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.as"]/option[@valueType="includePath"]/listOptionValue')
+nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.as"]/option[@valueType="includePath"]/listOptionValue')
 first = 1
 for node in nodes:
     value = node.attrib.get('value')
@@ -139,14 +139,14 @@ for node in nodes:
             as_includes += '\nAS_INCLUDES += -I' + value
 # AS symbols
 as_defs = 'AS_DEFS ='
-nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.as"]/option[@valueType="definedSymbols"]/listOptionValue')
+nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.as"]/option[@valueType="definedSymbols"]/listOptionValue')
 for node in nodes:
     value = node.attrib.get('value')
     if (value != ""):
         as_defs += ' -D' + value
 # C include
 c_includes = 'C_INCLUDES ='
-nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.gcc"]/option[@valueType="includePath"]/listOptionValue')
+nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.gcc"]/option[@valueType="includePath"]/listOptionValue')
 first = 1
 for node in nodes:
     value = node.attrib.get('value')
@@ -159,7 +159,7 @@ for node in nodes:
             c_includes += '\nC_INCLUDES += -I' + value
 # C symbols
 c_defs = 'C_DEFS ='
-nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.gcc"]/option[@valueType="definedSymbols"]/listOptionValue')
+nodes = root.findall('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.gcc"]/option[@valueType="definedSymbols"]/listOptionValue')
 for node in nodes:
     value = node.attrib.get('value')
     if (value != ""):
@@ -168,7 +168,7 @@ for node in nodes:
 # Link script
 memory = ''
 estack = ''
-node = root.find('.//tool[@superClass="com.atollic.truestudio.exe.debug.toolchain.ld"]/option[@superClass="com.atollic.truestudio.ld.general.scriptfile"]')
+node = root.find('.//tool[@superClass="com.atollic.truestudio.exe.release.toolchain.ld"]/option[@superClass="com.atollic.truestudio.ld.general.scriptfile"]')
 try:
     value = node.attrib.get('value')
     ld_script = proj_folder + os.path.sep + re.sub(r'^..(\\|/)', '', value.replace('\\', os.path.sep)) # up one level
