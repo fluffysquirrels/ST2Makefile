@@ -98,14 +98,17 @@ sources=list(set(sources))
 sources.sort()
 c_sources = 'C_SOURCES ='
 asm_sources = 'ASM_SOURCES ='
+a_files = ''
 for source in sources:
     ext = os.path.splitext(source)[1]
     if ext == '.c':
         c_sources += ' \\\n  ' + source
     elif ext == '.s':
         asm_sources = asm_sources + ' \\\n  ' + source
+    elif ext == '.a':
+        a_files = a_files + ' \\\n  ' + source
     else:
-        sys.stderr.write("Unknow source file type: %s\r\n" % source)
+        sys.stderr.write("Unknown source file type: %s\r\n" % source)
         sys.exit(-5)
 # .cproject file
 try:
@@ -210,7 +213,8 @@ mf = mft.substitute( \
     AS_INCLUDES = as_includes, \
     C_DEFS = c_defs, \
     C_INCLUDES = c_includes, \
-    LD_PATH = ld_path)
+    LD_PATH = ld_path, \
+    A_FILES = a_files)
 try:
     fd = open(proj_folder + os.path.sep + 'Makefile', 'wb')
     fd.write(mf)
